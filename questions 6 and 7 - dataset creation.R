@@ -1,6 +1,6 @@
 # Create the data set for questions 6 and 7
 
-setwd("C:/Users/jackie/Desktop/own research/icc")
+setwd("C:/Users/jackie/Desktop/own research/icc/iccGit")
 source("ICC prelim.R")
 require(plyr)
 library(base)

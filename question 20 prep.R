@@ -93,30 +93,3 @@ for.icc <- join_all(list(for.pi,dummy.people,geographies.to.merge))
 
 detach(for.pi)
 attach(for.icc)
-
-# get ICCs
-
-#SID level
-uncond.SID <- lmer(pi.jk~1 + (1|SID))
-summary(uncond.SID)
-df.SID <- as.data.frame(VarCorr(uncond.SID))
-icc.SID <- df.SID[1,4]/(df.SID[1,4]+df.SID[2,4]) #0.09699202
-
-# zip level
-lmer.zip<-lmer(pi.jk~1 + (1|zip))
-summary(lmer.zip)
-df.zip<-as.data.frame(VarCorr(lmer.zip))
-icc.zip<-df.zip[1,4]/(df.zip[1,4]+df.zip[2,4]) #0.003087584
-
-###################### by sid type ############################
-
-icc.SID.type = NULL
-for(type in unique(SID.type)){
-  #SID level
-  uncond.SID <- lmer(pi.jk~1 + (1|SID), data = for.icc[SID.type == type,])
-  summary(uncond.SID)
-  df.SID <- as.data.frame(VarCorr(uncond.SID))
-  icc.SID.type[type] <- df.SID[1,4]/(df.SID[1,4]+df.SID[2,4]) 
-}
-# Cool Spot    Drug Spot Violent Spot    Cold Spot     Combined 
-# 0.10479036   0.07976854   0.11111916   0.18163061   0.04494427 
