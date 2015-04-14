@@ -141,6 +141,7 @@ icc.covs.both.67.zip <- df.covs.67.both[2,4]/(df.covs.67.both[1,4]+df.covs.67.bo
 
 icc.covs.67.SID.lev = NULL
 icc.covs.67.zip.lev = NULL
+df.67.SID.lev.covs = NULL
 for(type in unique(SID.type)){
   #SID level
   covs.both.67.lev <- lmer(pi.jk~1 + ed + marital + working + work.type + 
@@ -153,8 +154,27 @@ for(type in unique(SID.type)){
                                                    df.covs.67.lev[2,4]+df.covs.67.lev[3,4]) 
   icc.covs.67.zip.lev[type] <- df.covs.67.lev[2,4]/(df.covs.67.lev[1,4]+
                                                    df.covs.67.lev[2,4]+df.covs.67.lev[3,4])
+  df.67.SID.lev.covs <- c(df.67.SID.lev.covs, df.covs.67.lev[1,4])
 }
 
+#output files: first regression coeffs, then iccs and vars
+write.csv(cbind(summary(covs.both.67.lev)$coef[,1], summary(covs.both.67.lev)$coef[,3]),
+          file = "q6 q7 coefs.csv") 
+
+var.icc.67 = data.frame(vars = df.67.SID.lev.covs, iccs = icc.covs.67.SID.lev)
+overalls.67 = data.frame(vars = c(df.covs.67.both[2,4], df.covs.67.both[1,4]),
+                          iccs = c(icc.covs.both.67.zip, icc.covs.both.67.sid))
+output.unordered = rbind(overalls.67, var.icc.67)
+output = rbind(output.unordered[1:2,],
+               output.unordered[which(labels(output.unordered)[[1]] == "Cold Spot"),],
+               output.unordered[which(labels(output.unordered)[[1]] == "Cool Spot"),],
+               output.unordered[which(labels(output.unordered)[[1]] == "Violent Spot"),],
+               output.unordered[which(labels(output.unordered)[[1]] == "Drug Spot"),],
+               output.unordered[which(labels(output.unordered)[[1]] == "Combined"),])
+write.csv(output, file = "q6 q7 vars.csv")
+
+
+#barchart
 Spot = factor(names(icc.covs.67.SID.lev), 
               levels = c("Cold Spot", "Cool Spot", "Drug Spot", "Violent Spot", "Combined"), 
               ordered = TRUE)
@@ -173,11 +193,6 @@ ggplot(mm, aes(x = factor(Spot), y = test)) +
   ggtitle("ICC for combined ZIP and SID with covariates")
   
 
-# icc.covs.67.SID.lev
-# Cool Spot    Drug Spot Violent Spot    Cold Spot     Combined 
-# 0.5675543    0.5182646    0.5142818    0.7550214    0.5290486 
-# Cool Spot    Drug Spot Violent Spot    Cold Spot     Combined 
-# 0.001184494  0.002977930  0.000000000  0.024134199  0.085403567 
 
 ###################### 6 and 7 separate ######################
 detach(for.icc67)
