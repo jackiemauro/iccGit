@@ -3,7 +3,8 @@ source("create covariates dataset.R")
 
 # put source file for question X: "question X prep.R"
 # for 6 and 7 use file "questions 6 and 7 - iccs. R"
-source("question 41 prep.R")
+# find and replace all question numbers with your new ones
+source("question 20 prep.R")
 
 
 ########################### get ICCs no covs ###############################
@@ -112,6 +113,26 @@ for(type in unique(SID.type)){
   df.SID.lev.covs <- c(df.SID.lev.covs, df.covs[1,4])
 }
 
+
+#output regression results for tables: remember to change name depending on question
+write.csv(cbind(summary(SID.lev.covs)$coef[,1], summary(SID.lev.covs)$coef[,3]),
+          file = "q20 coefs.csv")
+
+
+var.icc = data.frame(vars = df.SID.lev.covs, iccs = icc.SID.lev.covs)
+overalls = data.frame(vars = c(df.both.cov[2,4], df.both.cov[1,4]),
+                         iccs = c(icc.zip.both.cov, icc.sid.both.cov))
+output.unordered = rbind(overalls, var.icc)
+output = rbind(output.unordered[1:2,],
+               output.unordered[which(labels(output.unordered)[[1]] == "Cold Spot"),],
+               output.unordered[which(labels(output.unordered)[[1]] == "Cool Spot"),],
+               output.unordered[which(labels(output.unordered)[[1]] == "Violent Spot"),],
+               output.unordered[which(labels(output.unordered)[[1]] == "Drug Spot"),],
+               output.unordered[which(labels(output.unordered)[[1]] == "Combined"),])
+write.csv(output, file = "q20 vars.csv")
+
+
+
 Spot = factor(names(icc.SID.lev.covs), 
               levels = c("Cold Spot", "Cool Spot", "Drug Spot", "Violent Spot", "Combined"), 
               ordered = TRUE)
@@ -125,8 +146,4 @@ ggplot(mm, aes(x = factor(Spot), y = test)) +
   geom_hline(aes(yintercept = icc.sid.both.cov), col = "red") + 
   geom_hline(aes(yintercept = icc.zip.both.cov), col = "blue") +
   ylab("SID level ICC") + 
-  ggtitle("ICC for combined ZIP and SID with covariates")
-
-#output regression results for tables
-write.csv(cbind(summary(SID.lev.covs)$coef[,1], summary(SID.lev.covs)$coef[,3]),
-          file = "q41 coefs.csv")
+  ggtitle("ICC for combined ZIP and SID with covariates q20")
