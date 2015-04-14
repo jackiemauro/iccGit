@@ -1,4 +1,4 @@
-#Perceptions of crime and disorder
+#Procedural justice
 
 setwd("C:/Users/jackie/Desktop/own research/icc/iccGit")
 source("ICC prelim.R")
@@ -6,10 +6,9 @@ require(plyr)
 library(base)
 
 #reduce data frame to just questions we're interested in
-reduced<-data.frame(SID=SID,person=household_ID,q1=soc_disord_20a,
-                    q2=soc_disord_20b, q3=soc_disord_20c, q4=soc_disord_20d,
-                    q5=soc_disord_20e, q6=soc_disord_20f, q7=soc_disord_20g,
-                    q8=soc_disord_20h)
+reduced<-data.frame(SID=SID,person=household_ID,q1=proced_jus_42a,
+                    q2=proced_jus_42b, q3=proced_jus_42c, q4=proced_jus_42d,
+                    q5=proced_jus_42e, q6=proced_jus_42f)
 detach(hotspot)
 
 
@@ -34,14 +33,10 @@ tab5<-as.data.frame(table(q5,person,useNA="always"))
 names(tab5)<-c("Answer","person","Q5")
 tab6<-as.data.frame(table(q6,person,useNA="always"))
 names(tab6)<-c("Answer","person","Q6")
-tab7<-as.data.frame(table(q7,person,useNA="always"))
-names(tab7)<-c("Answer","person","Q7")
-tab8<-as.data.frame(table(q8,person,useNA="always"))
-names(tab8)<-c("Answer","person","Q8")
 
 
 #limiting to rows with some answer
-pre<-join_all(list(tab1,tab2,tab3,tab4,tab5,tab6,tab7,tab8))
+pre<-join_all(list(tab1,tab2,tab3,tab4,tab5,tab6))
 pre$sum<-rowSums(pre[,3:length(pre)])
 
 #4 households have >1 row, excluding these
@@ -63,33 +58,23 @@ if(any(is.na(for.pi$person))){
 }
 
 # find pi's
-pi.reg <- lm(as.numeric(Answer)~person+Q1+Q2+Q3+Q4+Q5+Q6+Q7+Q8-1)
-pi.20 <- pi.reg$coefficients[1:(length(pi.reg$coefficients)-8)] 
-alphas <- pi.reg$coefficients[(length(pi.reg$coefficients)-7):length(pi.reg$coefficients)] 
+pi.reg <- lm(as.numeric(Answer)~person+Q1+Q2+Q3+Q4+Q5+Q6-1)
+pi.42 <- pi.reg$coefficients[1:(length(pi.reg$coefficients)-6)] 
+alphas <- pi.reg$coefficients[(length(pi.reg$coefficients)-5):length(pi.reg$coefficients)] 
 
 # find icc
-geo.id<-read.csv("geographic ids.csv")
-merge.geo<-merge(hotspot,geo.id)
-
-geographies.to.merge<-data.frame(SID=merge.geo$SID,
-                                 SID.type = merge.geo$ColdSpot3,
-                                 person=merge.geo$household_ID,
-                                 tract=merge.geo$Census.Tract,
-                                 block.grp=merge.geo$Block.Group,
-                                 state.fips=merge.geo$State.FIPS,
-                                 county.fips=merge.geo$County.FIPS,
-                                 zip = merge.geo$Zip.Code) 
+source("create covariates dataset.R")
 
 # make sure all subjects are in both sets
-test<-strsplit(names(pi),split="person")
+test<-strsplit(names(pi.42),split="person")
 has.dummies = NULL
 for(ii in 1:length(test)){
   has.dummies[ii]<-as.character(paste(unlist(test[ii]),collapse=""))
 }
-dummy.people<-data.frame(person = has.dummies, pi.jk = pi)
+dummy.people<-data.frame(person = has.dummies, pi.jk = pi.42)
 
 # merge dummies, pi's and geographies
-for.icc.20 <- join_all(list(for.pi,dummy.people,geographies.to.merge))
+for.icc.42 <- join_all(list(for.pi,dummy.people,covs.set))
 
 detach(for.pi)
-attach(for.icc.20)
+attach(for.icc.42)

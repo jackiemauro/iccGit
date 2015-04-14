@@ -2,7 +2,7 @@
 # will merge this dataset with pi's for given
 # question
 
-setwd("C:/Users/jackie/Desktop/own research/icc")
+setwd("C:/Users/jackie/Desktop/own research/icc/iccGit")
 
 geo.id<-read.csv("geographic ids.csv")
 merge.geo<-merge(hotspot,geo.id)

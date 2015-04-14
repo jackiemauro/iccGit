@@ -1,5 +1,5 @@
 library(foreign)
-setwd("C:/Users/jackie/Desktop/own research/icc")
+setwd("C:/Users/jackie/Desktop/own research/icc/iccGit")
 
 #choose dataset based on which way you want to code DK's and REF's
 

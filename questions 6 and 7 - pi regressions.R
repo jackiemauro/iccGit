@@ -3,9 +3,9 @@
 source("questions 6 and 7 - dataset creation.R")
 
 # find pi's for combined
-pi.reg <- lm(as.numeric(Answer)~person+Q1+Q2.rev+Q3+Q4.rev+Q5.rev+Q6+Q7+Q8+Q9+Q10+Q11-1)
-pi <-pi.reg$coefficients[1:(length(pi.reg$coefficients)-11)] 
-alphas = pi.reg$coefficients[(length(pi.reg$coefficients)-10):length(pi.reg$coefficients)] 
+pi.reg.67 <- lm(as.numeric(Answer)~person+Q1+Q2.rev+Q3+Q4.rev+Q5.rev+Q6+Q7+Q8+Q9+Q10+Q11-1)
+pi.67 <-pi.reg$coefficients[1:(length(pi.reg$coefficients)-11)] 
+alphas.67 = pi.reg$coefficients[(length(pi.reg$coefficients)-10):length(pi.reg$coefficients)] 
 
 # pi for just 6
 drops<-c("Q7","Q8","Q9","Q10", "Q11", "Q12")
