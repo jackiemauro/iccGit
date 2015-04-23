@@ -76,10 +76,10 @@ attach(pre.no.dup)
 # so they don't figure into dummy calc
 
 drops<-c("Q2","Q4","Q5","sum")
-for.pi<-pre.no.dup[pre$sum != 0, !names(pre.no.dup) %in% drops] 
+for.pi67<-pre.no.dup[pre$sum != 0, !names(pre.no.dup) %in% drops] 
 detach(pre.no.dup)
-attach(for.pi)
+attach(for.pi67)
 
 if(any(is.na(for.pi$person))){
-  for.pi <- for.pi[-which(is.na(for.pi$person)),]
+  for.pi67 <- for.pi67[-which(is.na(for.pi67$person)),]
 }

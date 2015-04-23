@@ -4,6 +4,7 @@ source("create covariates dataset.R")
 # put source file for question X: "question X prep.R"
 # for 6 and 7 use file "questions 6 and 7 - iccs. R"
 # find and replace all question numbers with your new ones
+
 source("question 20 prep.R")
 
 
@@ -132,6 +133,7 @@ output = rbind(output.unordered[1:2,],
 write.csv(output, file = "q20 vars.csv")
 
 
+#barchart of results
 
 Spot = factor(names(icc.SID.lev.covs), 
               levels = c("Cold Spot", "Cool Spot", "Drug Spot", "Violent Spot", "Combined"), 
