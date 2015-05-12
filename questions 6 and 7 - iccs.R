@@ -1,6 +1,7 @@
 setwd("C:/Users/jackie/Desktop/own research/icc/iccGit")
 source("create covariates dataset.R")
 source("questions 6 and 7 - pi regressions.R")
+require(plyr)
 
 #################### dataset creation ##############
 # merge datasets and run ICC's
@@ -64,10 +65,8 @@ icc.basic.both.67.sid<-df.basic.both.67[1,4]/(df.basic.both.67[1,4]+df.basic.bot
 
 icc.basic.67.SID.lev = NULL
 icc.basic.67.zip.lev = NULL
-for(type in unique(SID.type)){
-  #SID level
-  basic.both.67.lev <- lmer(pi.jk~1 + (1|SID) + (1|zip), data = for.icc67[SID.type == type,])
-  summary(basic.both.67.lev)
+for(type in unique(SID.type)[-NA]){
+  basic.both.67.lev <- lmer(pi.jk~ 1 + (1|SID) + (1|zip), data = for.icc67[SID.type == type,])
   df.basic.67.lev <- as.data.frame(VarCorr(basic.both.67.lev))
   icc.basic.67.SID.lev[type] <- df.basic.67.lev[1,4]/(df.basic.67.lev[1,4]+df.basic.67.lev[2,4]+df.basic.67.lev[3,4]) 
   icc.basic.67.zip.lev[type] <- df.basic.67.lev[2,4]/(df.basic.67.lev[1,4]+df.basic.67.lev[2,4]+df.basic.67.lev[3,4])
@@ -120,7 +119,16 @@ icc.covs.both.67.sid <- df.covs.67.both[1,4]/(df.covs.67.both[1,4]+df.covs.67.bo
                                             df.covs.67.both[3,4]) #0.2584314
 icc.covs.both.67.zip <- df.covs.67.both[2,4]/(df.covs.67.both[1,4]+df.covs.67.both[2,4]+
                                             df.covs.67.both[3,4]) #0.004694903
-
+#with type
+covs.both.67.type<-lmer(pi.jk~1 + ed + marital + working + work.type + 
+                     age + + age2 + race + eth + children + income + 
+                     inc.ed + gender + victim + yrs.in.nbh + SID.type + 
+                     (1|SID) + (1|zip))
+df.covs.67.both.type <- as.data.frame(VarCorr(covs.both.67.type))
+icc.covs.both.67.sid.type <- df.covs.67.both.type[1,4]/(df.covs.67.both.type[1,4]+df.covs.67.both.type[2,4]+
+                                                     df.covs.67.both.type[3,4]) #0.2602174
+icc.covs.both.67.zip.type <- df.covs.67.both.type[2,4]/(df.covs.67.both.type[1,4]+df.covs.67.both.type[2,4]+
+                                                          df.covs.67.both.type[3,4]) #0.004350159
 
 ############################ with covs by sid type 6&7 #######################
 
@@ -128,7 +136,6 @@ icc.covs.67.SID.lev = NULL
 icc.covs.67.zip.lev = NULL
 df.67.SID.lev.covs = NULL
 for(type in unique(SID.type)){
-  #SID level
   covs.both.67.lev <- lmer(pi.jk~1 + ed + marital + working + work.type + 
                              age + + age2 + race + eth + children + income + 
                              inc.ed + gender + victim + yrs.in.nbh + 
@@ -142,7 +149,7 @@ for(type in unique(SID.type)){
   df.67.SID.lev.covs <- c(df.67.SID.lev.covs, df.covs.67.lev[1,4])
 }
 
-#output files: first regression coeffs, then iccs and vars
+############## output files: first regression coeffs, then iccs and vars #######
 write.csv(cbind(summary(covs.both.67.lev)$coef[,1], summary(covs.both.67.lev)$coef[,3]),
           file = "q6 q7 coefs.csv") 
 

@@ -48,10 +48,10 @@ icc.SID = NULL
 icc.zip = NULL
 for(type in unique(SID.type)){
   #SID level
-  uncond.SID <- lmer(pi.jk~1 + (1|SID), data = for.icc[SID.type == type,])
+  uncond.SID <- lmer(pi.jk~1 + (1|SID) + (1|zip), data = for.icc[SID.type == type,])
   summary(uncond.SID)
   df.SID <- as.data.frame(VarCorr(uncond.SID))
-  icc.SID[type] <- df.SID[1,4]/(df.SID[1,4]+df.SID[2,4]) 
+  icc.SID[type] <- df.SID[1,4]/(df.SID[1,4]+df.SID[2,4] + df.SID[3,4]) 
 }
 
 bar.df = data.frame(Spot = names(icc.SID.lev.covs),
