@@ -2,6 +2,7 @@ setwd("C:/Users/jackie/Desktop/own research/icc/iccGit")
 source("create covariates dataset.R")
 source("questions 6 and 7 - pi regressions.R")
 require(plyr)
+require(lme4)
 
 #################### dataset creation ##############
 # merge datasets and run ICC's
@@ -95,7 +96,7 @@ ggplot(mm, aes(x = factor(Spot), y = test)) +
 
 #SID level
 covs.SID.67 <- lmer(pi.jk~1 + ed + marital + working + work.type + 
-                         age + + age2 + race + eth + children + income + 
+                         age + age2 + race + eth + children + income + 
                          inc.ed + gender + victim + yrs.in.nbh + 
                          (1|SID))
 df.covs.67.SID <- as.data.frame(VarCorr(covs.SID.67))
@@ -103,7 +104,7 @@ icc.covs.67.SID <- df.covs.67.SID[1,4]/(df.covs.67.SID[1,4]+df.covs.67.SID[2,4])
 
 # zip level
 covs.zip.67<-lmer(pi.jk~1 + ed + marital + working + work.type + 
-                     age + + age2 + race + eth + children + income + 
+                     age + age2 + race + eth + children + income + 
                      inc.ed + gender + victim + yrs.in.nbh + 
                      (1|zip))
 df.covs.67.zip <- as.data.frame(VarCorr(covs.zip.67))
@@ -111,7 +112,7 @@ icc.covs.67.zip <- df.covs.67.zip[1,4]/(df.covs.67.zip[1,4]+df.covs.67.zip[2,4])
 
 #look at combined level
 covs.both.67<-lmer(pi.jk~1 + ed + marital + working + work.type + 
-                      age + + age2 + race + eth + children + income + 
+                      age + age2 + race + eth + children + income + 
                       inc.ed + gender + victim + yrs.in.nbh + 
                       (1|SID) + (1|zip))
 df.covs.67.both <- as.data.frame(VarCorr(covs.both.67))
@@ -121,7 +122,7 @@ icc.covs.both.67.zip <- df.covs.67.both[2,4]/(df.covs.67.both[1,4]+df.covs.67.bo
                                             df.covs.67.both[3,4]) #0.004694903
 #with type
 covs.both.67.type<-lmer(pi.jk~1 + ed + marital + working + work.type + 
-                     age + + age2 + race + eth + children + income + 
+                     age + age2 + race + eth + children + income + 
                      inc.ed + gender + victim + yrs.in.nbh + SID.type + 
                      (1|SID) + (1|zip))
 df.covs.67.both.type <- as.data.frame(VarCorr(covs.both.67.type))
@@ -137,7 +138,7 @@ icc.covs.67.zip.lev = NULL
 df.67.SID.lev.covs = NULL
 for(type in unique(SID.type)){
   covs.both.67.lev <- lmer(pi.jk~1 + ed + marital + working + work.type + 
-                             age + + age2 + race + eth + children + income + 
+                             age + age2 + race + eth + children + income + 
                              inc.ed + gender + victim + yrs.in.nbh + 
                              (1|SID) + (1|zip), data = for.icc67[SID.type == type,])
   summary(covs.both.67.lev)
