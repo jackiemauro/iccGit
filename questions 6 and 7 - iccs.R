@@ -19,6 +19,17 @@ dummy.people<-data.frame(person = has.dummies, pi.jk = pi.67)
 # merge dummies, pi's and geographies
 for.icc67 <- join_all(list(for.pi67, dummy.people, covs.set))
 
+noNA <- as.matrix(for.icc67)[,-(22:23)] 
+#exclude age b/c otherwise turns age into categorical
+noNA[is.na(noNA)] <- "Blank"
+age.noNA = for.icc67$age
+# replacing with mean, discuss this with Amelia
+age.noNA[is.na(for.icc67$age)] <- mean(for.icc67$age, na.rm = T)
+age.noNA.sq = age.noNA^2
+
+noNA <- as.data.frame(noNA)
+for.icc67.noNA <- cbind(noNA, age.noNA, age.noNA.sq)
+
 detach(for.pi67)
 
 
