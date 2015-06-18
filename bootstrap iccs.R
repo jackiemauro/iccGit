@@ -3,6 +3,7 @@ require(plyr)
 require(lme4)
 require(MASS)
 require(boot)
+attach(for.icc67)
 
 
 bootreg.cold <- lmer(pi.jk~1 + ed + marital + working + work.type +

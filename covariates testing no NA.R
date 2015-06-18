@@ -1,14 +1,17 @@
-attach(for.icc67)
+# Re runs covariates analysis on the file with no NA's #
+
+covariates.noNA <- for.icc67.noNA[,c(17,23:36)]
+
+attach(for.icc67.noNA)
 require(plyr)
 require(lme4)
 
-covariates <- for.icc67[,17:31]
-
-covs.both.67.type<-lmer(pi.jk~1 + ed + marital + working + work.type + 
-                          age + age2 + race + eth + children + income + 
-                          inc.ed + gender + victim + yrs.in.nbh + SID.type + 
+covs.both.67.type.noNA<-lmer(pi.jk~1 + ed + marital + working + work.type + 
+                          age.noNA+ age.noNA.sq + race + eth + children.noNA + income + 
+                          inc.ed + gender + victim + yrs.nbh.noNA + SID.type + 
                           (1|SID) + (1|zip))
-work.type.new = ifelse(is.na(work.type), "Not Reported", work.type)
+#keeps all observations but drops 2 columns--more collinearity with NA's taken out
+
 
 # suppressing intercept, all covariates are significant
 not.sig = list()
@@ -23,7 +26,7 @@ for(ii in 1:length(covariates)){
 }
 which(not.sigF > 0)
 
-#not suppressing intercept, may are not
+#not suppressing intercept
 not.sig2 = list()
 not.sigF2 = list()
 for(ii in 1:length(covariates)){
@@ -40,34 +43,35 @@ which(not.sigF2 > 0)
 # ethnicity and victim not overall significant
 
 # adding incrementally
-unchanging.demogs.lmer <- lmer(pi.jk~1 + age + age2 + race + eth + gender
+unchanging.demogs.lmer <- lmer(pi.jk~1 + age.noNA+ age.noNA.sq + race + eth + gender
                                + SID.type + (1|SID) + (1|zip))
 summary(unchanging.demogs.lmer)
 print.icc(unchanging.demogs.lmer)
 #different scales warning (assuming its age)
 
-with.fam.lmer <- lmer(pi.jk~1 + age + age2 + race + eth + gender
-                      + marital + children 
+
+with.fam.lmer <- lmer(pi.jk~1 + age.noNA + age.noNA.sq + race + eth + gender
+                      + marital + children.noNA 
                       + SID.type + (1|SID) + (1|zip))
 print.icc(with.fam.lmer)
 
-with.ed.lmer <- lmer(pi.jk~1 + age + age2 + race + eth + gender
-                     + marital + children 
+with.ed.lmer <- lmer(pi.jk~1 + age.noNA+ age.noNA.sq + race + eth + gender
+                     + marital + children.noNA 
                      + ed 
                      + SID.type + (1|SID) + (1|zip))
 print.icc(with.ed.lmer)
 
 
-with.prof.lmer <- lmer(pi.jk~1 + age + age2 + race + eth + gender
-                       + marital + children 
+with.prof.lmer <- lmer(pi.jk~1 + age.noNA+ age.noNA.sq + race + eth + gender
+                       + marital + children.noNA 
                        + ed 
-                       + income + working + work.type.new
+                       + income + working + work.type
                        + SID.type + (1|SID) + (1|zip))
 print.icc(with.prof.lmer)
-# this is dropping a ton of people, need to fix it
 
-with.workbyed.lmer <- lmer(pi.jk~1 + age + age2 + race + eth + gender
-                           + marital + children 
+
+with.workbyed.lmer <- lmer(pi.jk~1 + age.noNA+ age.noNA.sq + race + eth + gender
+                           + marital + children.noNA 
                            + ed 
                            + income + working + work.type
                            + inc.ed
@@ -75,15 +79,14 @@ with.workbyed.lmer <- lmer(pi.jk~1 + age + age2 + race + eth + gender
 #becomes rank deficient with interaction
 print.icc(with.workbyed.lmer)
 
-full.lmer <- lmer(pi.jk~1 + age + age2 + race + eth + gender
-                  + marital + children 
+full.lmer <- lmer(pi.jk~1 + age.noNA+ age.noNA.sq + race + eth + gender
+                  + marital + children.noNA 
                   + ed 
-                  + income + working + work.type.new
+                  + income + working + work.type
                   + inc.ed
-                  + yrs.in.nbh + victim
+                  + yrs.nbh.noNA + victim
                   + SID.type + (1|SID) + (1|zip))
 print.icc(full.lmer)
 
 # professional type bumps icc up a lot, other things change zip a little
 # but not much. 
-

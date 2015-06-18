@@ -69,17 +69,62 @@ dup.hhids<-table.dup.hhid$Var1[which(table.dup.hhid$Freq>1)]
 which(pre$person %in% dup.hhids)
 pre.no.dup<-pre[-which(pre$person %in% dup.hhids),]
 
+#also ended up with an NA at the end from table process, dropping
+pre.no.dup <- pre.no.dup[-which(is.na(pre.no.dup$person)),]
+
 detach(reduced)
 attach(pre.no.dup)
 
 # get rid of sum and unreversed codes 
 # so they don't figure into dummy calc
 
+
+
 drops<-c("Q2","Q4","Q5","sum")
 for.pi67<-pre.no.dup[pre$sum != 0, !names(pre.no.dup) %in% drops] 
 detach(pre.no.dup)
 attach(for.pi67)
 
-if(any(is.na(for.pi$person))){
+if(any(is.na(for.pi67$person))){
   for.pi67 <- for.pi67[-which(is.na(for.pi67$person)),]
 }
+
+#################### dataset for regression ##############
+# merge datasets and run ICC's
+
+# make sure all subjects are in both sets
+test<-strsplit(names(pi.67),split="person")
+has.dummies = NULL
+for(ii in 1:length(test)){
+  has.dummies[ii]<-as.character(paste(unlist(test[ii]),collapse=""))
+}
+dummy.people<-data.frame(person = has.dummies, pi.jk = pi.67)
+
+
+# merge dummies, pi's and geographies
+for.icc67 <- join_all(list(for.pi67, dummy.people, covs.set))
+for.icc67$yrs.nbh.noNA[for.icc67$yrs.nbh.noNA == -99] <- NA
+
+# create dataset with no NA's
+noNA <- as.matrix(for.icc67)[,c(18:21, 24, 25, 27:30)] 
+#exclude age, children, years in nbh b/c otherwise turns into categorical
+noNA[is.na(noNA)] <- "Blank"
+age.noNA = for.icc67$age
+# replacing with mean, discuss this with Amelia
+age.noNA[is.na(for.icc67$age)] <- mean(for.icc67$age, na.rm = T)
+age.noNA.sq = age.noNA^2
+children.noNA = for.icc67$children
+children.noNA[is.na(children.noNA)] <- mean(children.noNA, na.rm = T)
+yrs.nbh.noNA = for.icc67$yrs.in.nbh
+yrs.nbh.noNA[yrs.nbh.noNA == -99] <- NA
+yrs.nbh.noNA[is.na(yrs.nbh.noNA)] <- mean(yrs.nbh.noNA, na.rm = T)
+
+noNA <- as.data.frame(noNA)
+for.icc67.noNA <- cbind(for.icc67[,1:17],for.icc67[,32:36],
+                        noNA, age.noNA, age.noNA.sq, children.noNA, yrs.nbh.noNA)
+remove(age.noNA)
+remove(age.noNA.sq)
+remove(children.noNA)
+remove(yrs.nbh.noNA)
+
+detach(for.pi67)

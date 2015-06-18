@@ -37,4 +37,9 @@ covs.set      <-       data.frame(SID= SID,
                                   county.fips= County.FIPS,
                                   zip =  Zip.Code) 
 
+table.dup.hhid<-as.data.frame(table(hotspot$household_ID))
+dup.hhids<-table.dup.hhid$Var1[which(table.dup.hhid$Freq>1)]
+which(covs.set$person %in% dup.hhids)
+covs.set <- covs.set[-which(covs.set$person %in% dup.hhids),]
+
 detach(merge.geo)
