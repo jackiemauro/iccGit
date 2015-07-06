@@ -26,7 +26,7 @@ reduced$q5.rev = reduced$q5*(-1) + 5
 
 attach(reduced)
 
-#transform data to get binary answer-person combinations
+# transform data to get binary answer-person combinations
 tab1<-as.data.frame(table(q1,person,useNA="always"))
 names(tab1)<-c("Answer","person","Q1")
 tab2<-as.data.frame(table(q2,person,useNA="always"))
@@ -77,9 +77,6 @@ attach(pre.no.dup)
 
 # get rid of sum and unreversed codes 
 # so they don't figure into dummy calc
-
-
-
 drops<-c("Q2","Q4","Q5","sum")
 for.pi67<-pre.no.dup[pre$sum != 0, !names(pre.no.dup) %in% drops] 
 detach(pre.no.dup)
@@ -89,21 +86,27 @@ if(any(is.na(for.pi67$person))){
   for.pi67 <- for.pi67[-which(is.na(for.pi67$person)),]
 }
 
+# get pi's
+pi.reg <- lm(as.numeric(Answer)~person+Q1+Q2.rev+Q3+Q4.rev+Q5.rev+Q6+Q7+Q8+Q9+Q10+Q11-1)
+pi67 <-pi.reg$coefficients[1:(length(pi.reg$coefficients)-11)] 
+
 #################### dataset for regression ##############
-# merge datasets and run ICC's
+# merge datasets
 
 # make sure all subjects are in both sets
-test<-strsplit(names(pi.67),split="person")
+test<-strsplit(names(pi67),split="person")
 has.dummies = NULL
 for(ii in 1:length(test)){
   has.dummies[ii]<-as.character(paste(unlist(test[ii]),collapse=""))
 }
-dummy.people<-data.frame(person = has.dummies, pi.jk = pi.67)
+dummy.people<-data.frame(person = has.dummies, pi.jk = pi67)
 
 
 # merge dummies, pi's and geographies
 for.icc67 <- join_all(list(for.pi67, dummy.people, covs.set))
-for.icc67$yrs.nbh.noNA[for.icc67$yrs.nbh.noNA == -99] <- NA
+
+# replace -99 with NA for years in nbh
+for.icc67$yrs.in.nbh[for.icc67$yrs.in.nbh == -99] <- NA
 
 # create dataset with no NA's
 noNA <- as.matrix(for.icc67)[,c(18:21, 24, 25, 27:30)] 

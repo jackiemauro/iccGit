@@ -4,44 +4,7 @@ source("questions 6 and 7 - pi regressions.R")
 require(plyr)
 require(lme4)
 
-#################### dataset creation ##############
-# merge datasets and run ICC's
 
-# make sure all subjects are in both sets
-test<-strsplit(names(pi.67),split="person")
-has.dummies = NULL
-for(ii in 1:length(test)){
-  has.dummies[ii]<-as.character(paste(unlist(test[ii]),collapse=""))
-}
-dummy.people<-data.frame(person = has.dummies, pi.jk = pi.67)
-
-
-# merge dummies, pi's and geographies
-for.icc67 <- join_all(list(for.pi67, dummy.people, covs.set))
-
-# create dataset with no NA's
-noNA <- as.matrix(for.icc67)[,c(18:21, 24, 25, 27:30)] 
-#exclude age, children, years in nbh b/c otherwise turns into categorical
-noNA[is.na(noNA)] <- "Blank"
-age.noNA = for.icc67$age
-# replacing with mean, discuss this with Amelia
-age.noNA[is.na(for.icc67$age)] <- mean(for.icc67$age, na.rm = T)
-age.noNA.sq = age.noNA^2
-children.noNA = for.icc67$children
-children.noNA[is.na(children.noNA)] <- mean(children.noNA, na.rm = T)
-yrs.nbh.noNA = for.icc67$yrs.in.nbh
-yrs.nbh.noNA[is.na(yrs.nbh.noNA)] <- mean(yrs.nbh.noNA, na.rm = T)
-
-
-noNA <- as.data.frame(noNA)
-for.icc67.noNA <- cbind(for.icc67[,1:17],for.icc67[,32:36],
-                        noNA, age.noNA, age.noNA.sq, children.noNA, yrs.nbh.noNA)
-remove(age.noNA)
-remove(age.noNA.sq)
-remove(children.noNA)
-remove(yrs.nbh.noNA)
-
-detach(for.pi67)
 
 
 ########################### get ICCs ###############################
@@ -49,6 +12,30 @@ detach(for.pi67)
 #                     start w all combined                         #
 #                                                                  #
 ####################################################################
+
+# write covariates as: "+ cov1 + cov2 + ... + covn" for now
+
+get.icc.fn <- function(data, covariates = FALSE, zip.incl = FALSE){
+  attach(data)
+  reg.list = "1 + (1|SID)"
+  if(covariates != FALSE){
+    reg.list = paste(reg.list, covariates)
+  }
+  if(zip.incl == TRUE) {
+    reg.list = paste(reg.list, " + (1|zip)")
+    reg = eval(parse(text = paste("lmer(pi.jk ~ ", reg.test, ")")))
+    df <- as.data.frame(VarCorr(reg))
+    icc.sid <- df[1,4]/sum(df[1:3,4]) 
+    icc.zip <- df[2,4]/sum(df[1:3,4]) 
+    icc.out = c(icc.sid, icc.zip)
+  }
+  else{
+    reg = eval(parse(text = paste("lmer(pi.jk ~ ", reg.test, ")")))
+    df <- as.data.frame(VarCorr(reg))
+    icc.out <- df[1,4]/sum(df[1:2,4]) 
+  }
+  return(icc.out)
+}
 
 ################## basic ICCs 6 & 7 ################################
 attach(for.icc67)
