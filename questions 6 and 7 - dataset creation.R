@@ -103,17 +103,21 @@ dummy.people<-data.frame(person = has.dummies, pi.jk = pi67)
 
 
 # merge dummies, pi's and geographies
+source("create covariates dataset.R")
 for.icc67 <- join_all(list(for.pi67, dummy.people, covs.set))
+for.bayes <- join_all(list(for.pi67, covs.set))
 
 # replace -99 with NA for years in nbh
 for.icc67$yrs.in.nbh[for.icc67$yrs.in.nbh == -99] <- NA
 
 # create dataset with no NA's
 noNA <- as.matrix(for.icc67)[,c(18:21, 24, 25, 27:30)] 
+
 #exclude age, children, years in nbh b/c otherwise turns into categorical
 noNA[is.na(noNA)] <- "Blank"
-age.noNA = for.icc67$age
+
 # replacing with mean, discuss this with Amelia
+age.noNA = for.icc67$age
 age.noNA[is.na(for.icc67$age)] <- mean(for.icc67$age, na.rm = T)
 age.noNA.sq = age.noNA^2
 children.noNA = for.icc67$children
@@ -129,5 +133,3 @@ remove(age.noNA)
 remove(age.noNA.sq)
 remove(children.noNA)
 remove(yrs.nbh.noNA)
-
-detach(for.pi67)

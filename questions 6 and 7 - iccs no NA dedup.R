@@ -3,9 +3,9 @@
 
 
 for.icc67.noNA.dedup = unique(for.icc67.noNA[,c(2, 15:length(for.icc67.noNA))]) 
+
+
 require(lme4)
-
-
 cov.list = "+ ed + marital + working + work.type +
             age.noNA + age.noNA.sq + race + eth + children.noNA + income + 
             inc.ed + gender + victim + yrs.nbh.noNA"
@@ -88,3 +88,27 @@ sd1 = sd(as.data.frame(b))[,1])
 sd2 = sd(as.data.frame(b))[,2])
 confint <- confint(bootreg.dedup) 
 write.csv(confint, file = "q6 q7 bootstrap confints noNA dedup.csv") 
+
+
+
+#######check -- same results
+
+icc.covs.67.SID.lev = NULL
+icc.covs.67.zip.lev = NULL
+df.67.SID.lev.covs = NULL
+for(type in unique(SID.type)){
+  covs.both.67.lev <- lmer(pi.jk~1 + ed + marital + working + work.type + 
+                             age.noNA + age.noNA.sq + race + eth + children.noNA + income + 
+                             inc.ed + gender + victim + yrs.nbh.noNA + 
+                             (1|SID) + (1|zip), data = for.icc67.noNA.dedup[SID.type == type,])
+  summary(covs.both.67.lev)
+  df.covs.67.lev <- as.data.frame(VarCorr(covs.both.67.lev))
+  icc.covs.67.SID.lev[type] <- df.covs.67.lev[1,4]/(df.covs.67.lev[1,4]+
+                                                      df.covs.67.lev[2,4]+df.covs.67.lev[3,4]) 
+  icc.covs.67.zip.lev[type] <- df.covs.67.lev[2,4]/(df.covs.67.lev[1,4]+
+                                                      df.covs.67.lev[2,4]+df.covs.67.lev[3,4])
+  df.67.SID.lev.covs <- c(df.67.SID.lev.covs, df.covs.67.lev[1,4])
+}
+
+
+var.icc.67 = data.frame(vars = df.67.SID.lev.covs, iccs = icc.covs.67.SID.lev)

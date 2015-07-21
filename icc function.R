@@ -1,4 +1,7 @@
-get.icc.fn <- function(data, covariates = FALSE, zip.incl = FALSE){
+get.icc.fn <- function(data, covariates = FALSE, zip.incl = FALSE, block.type = FALSE){
+  if(block.type != FALSE){
+    data = data[which(data$SID.type == block.type),]
+  }
   attach(data)
   reg.list = "1 + (1|SID)"
   if(covariates != FALSE){
@@ -17,5 +20,6 @@ get.icc.fn <- function(data, covariates = FALSE, zip.incl = FALSE){
     df <- as.data.frame(VarCorr(reg))
     icc.out <- df[1,4]/sum(df[1:2,4]) 
   }
+  detach(data)
   return(icc.out)
 }

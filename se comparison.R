@@ -67,6 +67,6 @@ Yadav(data=for.icc67.noNA, cluster = SID, response = pi.jk)
 # 0.0001185246
 # much smaller than bootstrap, and good estimate of rho (0.1071452981)
 
-Yadav(data = test.data, cluster = SID, response = pi.jk)
+Yadav(data = for.icc67.noNA.dedup, cluster = SID, response = pi.jk)
 # ICC est: 0.0211
 # Var(ICC): 0.0313

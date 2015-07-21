@@ -1,7 +1,9 @@
 library(foreign)
 setwd("C:/Users/jackie/Desktop/own research/icc/iccGit")
 
-#choose dataset based on which way you want to code DK's and REF's
+# choose dataset based on which way you want to code DK's and REF's
+# hotspot file distinguishes between DK, REF and NA
+# hotspot orig file codes all DK, REF, NA to NA
 
 hotspot.orig<-read.spss("PostDrop09252014.sav", to.data.frame=TRUE)
 
