@@ -149,49 +149,7 @@ dummy.people<-data.frame(person = has.dummies, pi.jk = pi67)
 
 noNA.df <- merge(reduced.noNA, dummy.people, all.x = TRUE)
 
-#################### test with a subset #############################
-# person is useless, take a large enough sample that there are no empty
-# categories. Check working and ed especially for this (DK and Ref).
-# two options for datasets, first is larger, check for empties
-test <- noNA.df[c(sample(c(1:dim(noNA.df)[1]), 1500, replace = F)),-c(2)] 
-#test <- noNA.df[1:500,-c(2,18)] 
-
-#parameters          
-method = c(rep("",24), rep("pmm",3), "~age")
-
-pred <- quickpred(test)
-# pred <- quickpred(test, include = "SID")
-for(ii in 1:dim(pred)[1]){                 # avoid multicollinearity
-  if(ii %% 2 == 0){pred[ii, "age"] <-0 }
-  else{pred[ii, "age2"] <- 0}
-}
-pred["age","age2"] <- 0
-
-ptm <- proc.time()
-imp2 <- mice(test, seed = 0, meth = method, 
-             pred = pred, MaxNWts = 2000)
-proc.time() - ptm
-
-########################### run on full set ###############################
-for.mi <- noNA.df[,-(1)]                 # get rid of person var
-        
-method = c(rep("",24), rep("pmm",3),           # imputation method for each
-           "~age^2")                           # age2 imputed from age                     
-
-pred <- quickpred(for.mi)                     # creation prediction matrix
-# pred <- quickpred(test, include = "SID")
-for(ii in 1:dim(pred)[1]){                    # avoid multicollinearity
-  if(ii %% 2 == 0){pred[ii, "age"] <-0 }      # can't have age and age2 both
-  else{pred[ii, "age2"] <- 0}                 # 1 in matrix b/c lin dependent
-}
-pred["age","age2"] <- 0                       # same as above, collinearity
-
-ptm <- proc.time()                            # run and time imputation
-imp.full <- mice(for.mi, seed = 0, meth = method, 
-             pred = pred, MaxNWts = 2000)
-proc.time() - ptm
-
-######## using maxit = 0 method #####
+################################ run imputation ##########################
 for.mi <- noNA.df[,-(names(noNA.df) == "person")]
 ini <- mice(for.mi, max = 0, print = FALSE)
 meth <- ini$meth
@@ -227,11 +185,11 @@ est <- pool(regs1)
 
 ######################## bootstrapping #####################
 # get matrix with placement of missing values
-miss.mat <- noNA.df[,c(3:18,31)]
-miss.mat[!is.na(miss.mat)] <- 0
-miss.mat[is.na(miss.mat)] <- 1
-miss.mat2 <- data.frame(noNA.df[,2], miss.mat[,1:16], noNA.df[,19:30], pi.jk = miss.mat[,17])
-miss.mat2[,c(1:2,19:30)] <- 0
+temp <- noNA.df[,c(3:18,31)]
+temp[!is.na(temp)] <- 0
+temp[is.na(temp)] <- 1
+miss.mat <- data.frame(noNA.df[,2], temp[,1:16], noNA.df[,19:30], pi.jk = temp[,17])
+miss.mat[,c(1:2,19:30)] <- 0
 
 # import imputed dataset
 dat <- read.table("imputed_mice_1.csv")
@@ -240,7 +198,7 @@ n = dim(dat)[1]
 # get sample w replacement and make dataset
 rows = sample(c(1:n), n, replace = T)
 b1 <- dat[rows,]
-b1[miss.mat2 == 1] <- NA
+b1[miss.mat == 1] <- NA
 
 # impute sample dataset
 ini <- mice(b1, max = 0, print = FALSE)
