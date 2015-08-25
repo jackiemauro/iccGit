@@ -38,5 +38,15 @@ sm <- change(sm, y = "Zip.Code", what = "type", to = "un")
 
 impt <- mi(sm)
 
-miss <- missing_data.frame(mi.dat)
-impt <- mi(miss)
+sm1 <- data.frame(age = data[1:1000, 425], 
+                 minors = data[1:1000, 393],
+                 #income = as.factor(data[1:10000,397]),
+                 a7 = as.factor(data[1:1000,30]),
+                 b7 = as.factor(data[1:1000,31]))
+
+miss1 <- missing_data.frame(sm1)
+
+miss1 <- change(miss1, y = "a7", what = "type", to = "continuous")
+miss1 <- change(miss1, y = "b7", what = "type", to = "continuous")
+
+impt <- mi(miss1)
