@@ -15,9 +15,9 @@
 ###########################################################
 
 # usual covariates
-cov.list = "+ ed + marital + working + work.type +
-            age.noNA + age.noNA.sq + race + eth + children.noNA + income + 
-            inc.ed + gender + victim + yrs.nbh.noNA"
+# cov.list = "+ ed + marital + working + work.type +
+#             age.noNA + age.noNA.sq + race + eth + children.noNA + income + 
+#             inc.ed + gender + victim + yrs.nbh.noNA"
 
 
 get.icc.fn <- function(data, 

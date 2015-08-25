@@ -94,8 +94,7 @@ proc.time() - ptm
 test <- reduced[c(sample(c(1:dim(reduced)[1]), 1500, replace = F)),-c(2)] 
 test <- reduced[1:500,-c(2,18)] 
 
-
-md.pattern(test)
+ini <- mice(test, maxit = 0)
 
 #parameters
 order = c()              
@@ -115,7 +114,7 @@ ptm <- proc.time()
 imp2 <- mice(test, m=1, seed = 0, meth = method, 
              pred = pred, maxit = 2, MaxNWts = 2000)
 proc.time() - ptm
-# again, breaks if any category is empty
+
 
 ########### try with gelman ##############
 require(mi)

@@ -116,6 +116,8 @@ noNA <- as.matrix(for.icc67)[,c(18:21, 24, 25, 27:30)]
 #exclude age, children, years in nbh b/c otherwise turns into categorical
 noNA[is.na(noNA)] <- "Blank"
 
+
+############## archival, replacing with imputation or hotdecking #########
 # replacing with mean, discuss this with Amelia
 age.noNA = for.icc67$age
 age.noNA[is.na(for.icc67$age)] <- mean(for.icc67$age, na.rm = T)

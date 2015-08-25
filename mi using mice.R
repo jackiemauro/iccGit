@@ -15,9 +15,9 @@ data <- mi.dat[-which(mi.dat$household_ID %in% dup.hhids),]
 
 sm.test <- data[,c(1, 7, 10, 24:35, 88, 370, 373, 393, 397, 398, 425, 460)]
 
-pred.mat <- matrix(c(0,1,1,1,
+pred.mat <- matrix(c(0,0,0,0,
                      0,0,0,0,
-                     0,0,0,0,
+                     1,1,0,1,
                      0,0,0,0), ncol = 4, byrow = T)
 
 sm <- data.frame(income = as.factor(data[1:2000,397]),
@@ -32,7 +32,7 @@ imp.sm <- mice(sm, predictorMatrix = pred.mat)
 
 noNA <- as.matrix(sm)[,2:3] 
 noNA[is.na(noNA)] <- "Blank"
-sm2 <- data.frame(income = sm[,1], noNA, age = sm[,4])
+sm2 <- data.frame(income = sm[,1], noNA, b7 = sm[,3], age = sm[,4])
 
 imp.cat <- mice(sm2, predictorMatrix = pred.mat)
 

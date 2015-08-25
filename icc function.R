@@ -1,3 +1,6 @@
+# archival. use instead icc reg function
+
+
 get.icc.fn <- function(data, covariates = FALSE, zip.incl = FALSE, block.type = FALSE){
   if(block.type != FALSE){
     data = data[which(data$SID.type == block.type),]
