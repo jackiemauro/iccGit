@@ -28,6 +28,13 @@ require(mice)
 require(lme4)
 require(plyr)
 
+source("icc reg function.R") # function to run lmer regs and output ICCs
+source("bootstrap and imputing function.R") #bootstrap and impute fn 
+source("Yadav.R") #tests standard error methods
+
+
+
+################## load raw dataset and clean ##########################
 hotspot<-read.spss("PostDrop09252014 - Copy.sav", to.data.frame=TRUE)
 geo.id<-read.csv("geographic ids.csv")
 
@@ -185,14 +192,28 @@ est <- pool(regs1)
 
 ######################## bootstrapping #####################
 # get matrix with placement of missing values
-temp <- noNA.df[,c(3:18,31)]
-temp[!is.na(temp)] <- 0
-temp[is.na(temp)] <- 1
-miss.mat <- data.frame(noNA.df[,2], temp[,1:16], noNA.df[,19:30], pi.jk = temp[,17])
-miss.mat[,c(1:2,19:30)] <- 0
+# only variables in set 1 should have missings
+# all other columns should just be 0
+z.mat <- matrix(rep(0, dim(noNA.df)[1]*dim(noNA.df)[2]), ncol = dim(noNA.df)[2])
+colnames(z.mat) <- names(noNA.df)
+z.mat[is.na(noNA.df)] <- 1 
+miss.mat <- as.data.frame(z.mat)
 
 # import imputed dataset
-dat <- read.table("imputed_mice_1.csv")
+dat <- read.table("outputs/imputed_mice_1.csv")
+
+# initial estimates - cold and cool very low, others 5-7%
+cov.list = "+ ed + marital + working + work.type + 
+            age + age2 + race + eth + children + income + 
+            inc.ed + gender + victim + yrs.in.nbh"
+get.icc.fn(dat, covariates = cov.list, zip.incl = TRUE)
+get.icc.fn(dat, covariates = cov.list, zip.incl = TRUE, block.type = "Cold Spot")
+get.icc.fn(dat, covariates = cov.list, zip.incl = TRUE, block.type = "Cool Spot")
+get.icc.fn(dat, covariates = cov.list, zip.incl = TRUE, block.type = "Drug Spot")
+get.icc.fn(dat, covariates = cov.list, zip.incl = TRUE, block.type = "Violent Spot")
+get.icc.fn(dat, covariates = cov.list, zip.incl = TRUE, block.type = "Combined")
+
+# bootstrapping
 n = dim(dat)[1]
 
 # get sample w replacement and make dataset
@@ -203,16 +224,13 @@ b1[miss.mat == 1] <- NA
 # impute sample dataset
 ini <- mice(b1, max = 0, print = FALSE)
 meth <- ini$meth
-pred <- ini$pred                            # create prediction matrix
+pred <- ini$pred                            
 
 imp.b1 <- mice(b1, meth = meth, pred = pred, seed = 0, maxit = 1)
 b1.imputed <- complete(imp.b1)
 
 # get statistic of interest from imputed data
 # fn in "icc reg function" file
-cov.list = "+ ed + marital + working + work.type +
-            age + age2 + race + eth + children + income + 
-inc.ed + gender + victim + yrs.in.nbh"
 get.icc.fn(b1.imputed, covariates = cov.list, zip.incl = TRUE)
 get.icc.fn(b1.imputed, covariates = cov.list, zip.incl = TRUE, block.type = "Cold Spot")
 get.icc.fn(b1.imputed, covariates = cov.list, zip.incl = TRUE, block.type = "Cool Spot")
