@@ -16,8 +16,8 @@
 
 # usual covariates
 # cov.list = "+ ed + marital + working + work.type +
-#             age.noNA + age.noNA.sq + race + eth + children.noNA + income + 
-#             inc.ed + gender + victim + yrs.nbh.noNA"
+#             age + age2 + race + eth + children + income + 
+#             inc.ed + gender + victim + yrs.in.nbh"
 
 
 get.icc.fn <- function(data, 
@@ -42,7 +42,7 @@ get.icc.fn <- function(data,
     icc.out = list(df, c(icc.sid, icc.zip))
   }
   else{
-    reg = eval(parse(text = paste("lmer(pi.jk ~ ", reg.list, ")")))
+    reg = eval(parse(text = paste("lmer(pi.jk ~ ", reg.list, ", data = d)")))
     df <- as.data.frame(VarCorr(reg))
     icc <- df[1,4]/sum(df[1:2,4]) 
     icc.out <- list(df, icc)
